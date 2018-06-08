@@ -11,10 +11,13 @@ import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.RealmProvider;
 
 public class JMSEventListenerProvider implements EventListenerProvider {
 
-	public JMSEventListenerProvider(ConnectionFactory connectionFactory) {
+	public JMSEventListenerProvider(RealmProvider realmProvider, ConnectionFactory connectionFactory) {
+		this.realmProvider = realmProvider;
 		this.connectionFactory = connectionFactory;
 	}
 	
@@ -41,7 +44,7 @@ public class JMSEventListenerProvider implements EventListenerProvider {
 			MapMessage message = jmsContext.createMapMessage();
 			// properties (filterable on MQ)
 			message.setStringProperty("type", event.getType().toString());
-			message.setStringProperty("realmId", event.getRealmId());
+			message.setStringProperty("realmName", id2name(event.getRealmId()));
 			message.setLongProperty("time", event.getTime());
 			// fields
 			message.setString("userId", event.getUserId());
@@ -65,7 +68,7 @@ public class JMSEventListenerProvider implements EventListenerProvider {
 			// properties (filterable on MQ)
 			message.setStringProperty("resourceType", event.getResourceType().toString());
 			message.setStringProperty("operationType", event.getOperationType().toString());
-			message.setStringProperty("realmId", event.getRealmId());
+			message.setStringProperty("realmName", id2name(event.getRealmId()));
 			message.setLongProperty("time", event.getTime());
 			// fields
 			message.setString("resourcePath", event.getResourcePath());
@@ -78,10 +81,21 @@ public class JMSEventListenerProvider implements EventListenerProvider {
 		}
 
 	}
+	
+	/** Converts realm ID (invisible and thus meaningless to clients) to realm name */
+	private String id2name(String realmId) {
+		if (realmProvider == null)
+			return "ID:" + realmId;
+		RealmModel realm = realmProvider.getRealm(realmId);
+		if (realm == null)
+			return "ID:" + realmId;
+		return realm.getName();
+	}
 
 	@Override
 	public void close() {}
 
+	private final RealmProvider realmProvider;
 	private final ConnectionFactory connectionFactory;
 
 	private Topic topic = null;

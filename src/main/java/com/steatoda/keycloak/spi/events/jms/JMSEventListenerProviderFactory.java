@@ -66,7 +66,7 @@ public class JMSEventListenerProviderFactory implements EventListenerProviderFac
 
 	@Override
 	public EventListenerProvider create(KeycloakSession session) {
-		JMSEventListenerProvider provider = new JMSEventListenerProvider(connectionFactory);
+		JMSEventListenerProvider provider = new JMSEventListenerProvider(session.realms(), connectionFactory);
 		provider.setTopic(topic);
 		provider.setAdminTopic(adminTopic);
 		provider.setExcludedEvents(excludedEvents);
