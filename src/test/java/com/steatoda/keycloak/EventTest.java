@@ -28,7 +28,21 @@ public class EventTest {
 		connectionFactory.setClientID("keycloak");
 	}
 	
-	//@Test
+	@Test
+    public void testConnectionFactory() {
+		if (connectionFactory == null)
+			throw new NullPointerException();
+	}
+	
+	@Test
+    public void testContext() {
+		try (JMSContext jmsContext = connectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
+			if (jmsContext == null)
+				throw new NullPointerException();
+		}
+	}
+
+    //@Test
     public void testPing() {
 		Topic topic = new ActiveMQTopic("ping");
 		try (JMSContext jmsContext = connectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
@@ -43,11 +57,11 @@ public class EventTest {
 
 		Event event = new Event();
 		event.setType(EventType.VERIFY_EMAIL);
-		event.setRealmId("steatoda");
+		event.setRealmId("DontUseThis");
 		event.setTime(System.currentTimeMillis());
 		event.setUserId("<TEST> 0e04afad-19b1-4906-9ed4-4ab1097b10a2");
 		
-		JMSEventListenerProvider provider = new JMSEventListenerProvider(connectionFactory);
+		JMSEventListenerProvider provider = new JMSEventListenerProvider("steatoda", connectionFactory);
 		provider.setTopic(topic);
 		
 		provider.onEvent(event);
@@ -62,12 +76,12 @@ public class EventTest {
 		AdminEvent event = new AdminEvent();
 		event.setResourceType(ResourceType.USER);
 		event.setOperationType(OperationType.DELETE);
-		event.setRealmId("steatoda");
+		event.setRealmId("DontUseThis");
 		event.setTime(System.currentTimeMillis());
 		event.setResourcePath("<TEST> 0e04afad-19b1-4906-9ed4-4ab1097b10a2");
 		event.setRepresentation("<TEST> gordan.kresic@steatoda.com");
 		
-		JMSEventListenerProvider provider = new JMSEventListenerProvider(connectionFactory);
+		JMSEventListenerProvider provider = new JMSEventListenerProvider("steatoda", connectionFactory);
 		provider.setAdminTopic(adminTopic);
 		
 		provider.onEvent(event, false);
