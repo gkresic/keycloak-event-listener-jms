@@ -57,7 +57,7 @@ public class JMSEventListenerProviderFactory implements EventListenerProviderFac
 		// excludes
 		String[] excludes = config.getArray("exclude-events");
 		if (excludes != null)
-			excludedEvents = Stream.of(excludes).map(exclude -> EventType.valueOf(exclude)).collect(Collectors.toSet());
+			excludedEvents = Stream.of(excludes).map(EventType::valueOf).collect(Collectors.toSet());
 		System.out.println(String.format("JMSEventListenerProviderFactory initialized: %s %s %s", connectionFactory, topic, adminTopic));
 	}
 

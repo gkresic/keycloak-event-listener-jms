@@ -14,17 +14,14 @@ repositories {
 
 dependencies {
 
-	api 				'javax.jms:javax.jms-api:2.0',
-						'org.apache.activemq:artemis-jms-client-all:2.6.0'
-
-	implementation		'org.keycloak:keycloak-core:5.0.0',
+	implementation		'javax.jms:javax.jms-api:2.0',
+						'org.apache.activemq:artemis-jms-client-all:2.6.0',
+						'org.keycloak:keycloak-core:5.0.0',
 						'org.keycloak:keycloak-server-spi:5.0.0',
 						'org.keycloak:keycloak-server-spi-private:5.0.0'
 
-	testImplementation	'org.junit.jupiter:junit-jupiter-api:5.2.0'
+	testImplementation	'junit:junit:4.12'
     
-	testRuntimeOnly		'org.junit.jupiter:junit-jupiter-engine:5.2.0'
-	
 }
 
 jar {
@@ -37,7 +34,14 @@ jar {
 }
 
 test {
-useJUnitPlatform()	// required, since JUnit 5 tests are not enabled by default yet (as of Gradle 4.8)
+	// cherry-pick system properties to pass to tests
+    systemProperties System.getProperties().subMap([
+    	'TEST_MQ_URL',
+    	'TEST_MQ_USER',
+    	'TEST_MQ_PASSWORD',
+    	'TEST_MQ_TOPIC_USER_EVENT',
+    	'TEST_MQ_TOPIC_ADMIN_EVENT'
+    ])
 }
 
 task wrapper(type: Wrapper) {

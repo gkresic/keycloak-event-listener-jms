@@ -20,7 +20,7 @@ public class JMSEventListenerProvider implements EventListenerProvider {
 		this.realmProvider = realmProvider;
 		this.connectionFactory = connectionFactory;
 	}
-	
+
 	public Topic getTopic() { return topic; }
 	public void setTopic(Topic topic) { this.topic = topic; }
 	public Topic getAdminTopic() { return adminTopic; }
@@ -30,15 +30,12 @@ public class JMSEventListenerProvider implements EventListenerProvider {
 
 	@Override
 	public void onEvent(Event event) {
-		
+
 		if (topic == null)
 			return;
-		
+
 		if (excludedEvents != null && excludedEvents.contains(event.getType()))
 			return;
-
-//		if (event.getUserId() == null)
-//			return;
 
 		try (JMSContext jmsContext = connectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
 			MapMessage message = jmsContext.createMapMessage();
@@ -62,7 +59,7 @@ public class JMSEventListenerProvider implements EventListenerProvider {
 
 		if (adminTopic == null)
 			return;
-		
+
 		try (JMSContext jmsContext = connectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
 			MapMessage message = jmsContext.createMapMessage();
 			// properties (filterable on MQ)
@@ -81,7 +78,7 @@ public class JMSEventListenerProvider implements EventListenerProvider {
 		}
 
 	}
-	
+
 	/** Converts realm ID (invisible and thus meaningless to clients) to realm name */
 	private String id2name(String realmId) {
 		if (realmProvider == null)

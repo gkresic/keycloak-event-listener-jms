@@ -1,0 +1,6 @@
+systemProp.TEST_MQ_URL = 
+systemProp.TEST_MQ_USER = 
+systemProp.TEST_MQ_PASSWORD = 
+
+systemProp.TEST_MQ_TOPIC_USER_EVENT = 
+systemProp.TEST_MQ_TOPIC_ADMIN_EVENT = 

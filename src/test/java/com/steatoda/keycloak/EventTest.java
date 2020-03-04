@@ -3,11 +3,13 @@ package com.steatoda.keycloak;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Assert;
+import org.junit.Test;
+
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
@@ -18,27 +20,25 @@ import com.steatoda.keycloak.spi.events.jms.JMSEventListenerProvider;
 
 public class EventTest {
 
-	@BeforeAll
-	public static void init() {
+	@Before
+	public void init() {
 		connectionFactory = new ActiveMQConnectionFactory(
-			"tcp://127.0.0.1:61616",
-			"keycloak",
-			"udu3foQu"
+			System.getProperty("TEST_MQ_URL"),
+			System.getProperty("TEST_MQ_USER"),
+			System.getProperty("TEST_MQ_PASSWORD")
 		);
-		connectionFactory.setClientID("keycloak");
+		connectionFactory.setClientID("keycloak-test");
 	}
 	
 	@Test
     public void testConnectionFactory() {
-		if (connectionFactory == null)
-			throw new NullPointerException();
+		Assert.assertNotNull("Failed to initialize ActiveMQConnectionFactory", connectionFactory);
 	}
 	
 	@Test
     public void testContext() {
 		try (JMSContext jmsContext = connectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
-			if (jmsContext == null)
-				throw new NullPointerException();
+			Assert.assertNotNull("Failed to initialize JMSContext", jmsContext);
 		}
 	}
 
@@ -53,7 +53,7 @@ public class EventTest {
 	//@Test
     public void testUserEvent() {
 		
-		Topic topic = new ActiveMQTopic("KeycloakEvent");
+		Topic topic = new ActiveMQTopic(System.getProperty("TEST_MQ_TOPIC_USER_EVENT"));
 
 		Event event = new Event();
 		event.setType(EventType.VERIFY_EMAIL);
@@ -71,7 +71,7 @@ public class EventTest {
 	//@Test
     public void testAdminEvent() {
 		
-		Topic adminTopic = new ActiveMQTopic("KeycloakAdminEvent");
+		Topic adminTopic = new ActiveMQTopic(System.getProperty("TEST_MQ_TOPIC_ADMIN_EVENT"));
 
 		AdminEvent event = new AdminEvent();
 		event.setResourceType(ResourceType.USER);
@@ -79,7 +79,7 @@ public class EventTest {
 		event.setRealmId("DontUseRealmID");
 		event.setTime(System.currentTimeMillis());
 		event.setResourcePath("<TEST> 0e04afad-19b1-4906-9ed4-4ab1097b10a2");
-		event.setRepresentation("<TEST> gordan.kresic@steatoda.com");
+		event.setRepresentation("<TEST> user@foo.com");
 		
 		JMSEventListenerProvider provider = new JMSEventListenerProvider(null, connectionFactory);
 		provider.setAdminTopic(adminTopic);
@@ -88,8 +88,8 @@ public class EventTest {
 		
 	}
 
-	@AfterAll
-	public static void close() {
+	@After
+	public void close() {
 		connectionFactory.close();
 	}
 	
